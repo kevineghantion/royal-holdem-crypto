@@ -115,12 +115,9 @@ const Index = () => {
             Start with as little as $1 and experience the future of online poker.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button variant="royal" size="lg" className="px-8 py-4 text-lg">
               Create Account
-            </Button>
-            <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-              Play as Guest
             </Button>
           </div>
           
