@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Zap, Globe, TrendingUp } from "lucide-react";
 
 const Index = () => {
+  // Casino Royal - Premium Crypto Poker Platform
   const features = [
     {
       icon: Shield,
