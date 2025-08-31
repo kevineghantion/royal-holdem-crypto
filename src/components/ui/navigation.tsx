@@ -1,14 +1,19 @@
 import { Button } from "./button";
-import { Crown, Menu, X, Wallet, User, LogOut } from "lucide-react";
+import { Crown, Menu, X, Wallet, User, LogOut, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./auth-modal";
+import { WalletModal } from "./wallet-modal";
+import { GamesMenu } from "./games-menu";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, isAuthenticated, logout, connectWallet, isWalletConnected } = useAuth();
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isGamesMenuOpen, setIsGamesMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout, connectWallet, isWalletConnected, walletBalance } = useAuth();
   const { toast } = useToast();
 
   const handleConnectWallet = async () => {
@@ -27,15 +32,11 @@ export const Navigation = () => {
     }
   };
 
-  const handlePlayNow = () => {
+  const handleWalletClick = () => {
     if (!isAuthenticated) {
       setIsAuthModalOpen(true);
     } else {
-      // Navigate to game table - replace with actual navigation later
-      toast({
-        title: "Joining table...",
-        description: "Redirecting to poker table.",
-      });
+      setIsWalletModalOpen(true);
     }
   };
 
@@ -65,14 +66,37 @@ export const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-foreground hover:text-accent transition-colors">Tables</a>
-            <a href="#" className="text-foreground hover:text-accent transition-colors">Tournaments</a>
-            <a href="#" className="text-foreground hover:text-accent transition-colors">Leaderboard</a>
+            <div className="relative">
+              <button
+                onClick={() => setIsGamesMenuOpen(!isGamesMenuOpen)}
+                className="flex items-center gap-1 text-foreground hover:text-accent transition-colors"
+              >
+                Games
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {isGamesMenuOpen && (
+                <GamesMenu onClose={() => setIsGamesMenuOpen(false)} />
+              )}
+            </div>
             <a href="#" className="text-foreground hover:text-accent transition-colors">Help</a>
           </div>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
+            {isAuthenticated && (
+              <motion.button
+                onClick={handleWalletClick}
+                className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/30 rounded-lg hover:bg-accent/20 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Wallet className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-accent">
+                  ${walletBalance?.toFixed(2) || '0.00'}
+                </span>
+              </motion.button>
+            )}
+            
             <Button 
               variant="ghost" 
               size="sm"
@@ -97,10 +121,6 @@ export const Navigation = () => {
                 Sign In
               </Button>
             )}
-            
-            <Button variant="royal" size="sm" onClick={handlePlayNow}>
-              Play Now
-            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,14 +134,40 @@ export const Navigation = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 py-4 border-t border-border/40">
+          <motion.div 
+            className="md:hidden mt-4 py-4 border-t border-border/40"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
             <div className="flex flex-col gap-4">
-              <a href="#" className="text-foreground hover:text-accent transition-colors py-2">Tables</a>
-              <a href="#" className="text-foreground hover:text-accent transition-colors py-2">Tournaments</a>
-              <a href="#" className="text-foreground hover:text-accent transition-colors py-2">Leaderboard</a>
+              <button
+                onClick={() => setIsGamesMenuOpen(!isGamesMenuOpen)}
+                className="flex items-center justify-between text-foreground hover:text-accent transition-colors py-2"
+              >
+                Games
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {isGamesMenuOpen && (
+                <div className="ml-4">
+                  <GamesMenu onClose={() => setIsGamesMenuOpen(false)} />
+                </div>
+              )}
               <a href="#" className="text-foreground hover:text-accent transition-colors py-2">Help</a>
               
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/40">
+                {isAuthenticated && (
+                  <button
+                    onClick={handleWalletClick}
+                    className="flex items-center gap-2 px-3 py-2 bg-accent/10 border border-accent/30 rounded-lg hover:bg-accent/20 transition-colors justify-start"
+                  >
+                    <Wallet className="w-4 h-4 text-accent" />
+                    <span className="text-sm font-medium text-accent">
+                      ${walletBalance?.toFixed(2) || '0.00'}
+                    </span>
+                  </button>
+                )}
+                
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -147,19 +193,20 @@ export const Navigation = () => {
                     Sign In
                   </Button>
                 )}
-                
-                <Button variant="royal" size="sm" onClick={handlePlayNow}>
-                  Play Now
-                </Button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </nav>
       
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
+      />
+      
+      <WalletModal 
+        isOpen={isWalletModalOpen} 
+        onClose={() => setIsWalletModalOpen(false)} 
       />
     </header>
   );
